@@ -82,4 +82,9 @@ public class ItemEntity {
     public void setV(int v) {
         this.v = v;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

@@ -15,7 +15,7 @@ public class ViewHolder<T> extends RecyclerView.ViewHolder {
     }
 
     public void bind(T vm) {
-      //  binding.setVariable(BR.vm, vm);
+        binding.setVariable(BR.vm, vm);
         binding.executePendingBindings();
     }
 }

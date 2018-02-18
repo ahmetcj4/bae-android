@@ -14,8 +14,6 @@ import com.kurye.kurye.databinding.FragmentEditTextBinding;
 import com.kurye.kurye.entity.response.ItemEntity;
 import com.kurye.kurye.task.ItemTask;
 
-import java.util.List;
-
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link EditTextFragment#newInstance} factory method to
@@ -23,6 +21,9 @@ import java.util.List;
  */
 public class EditTextFragment extends Fragment {
     private static final String ARG_HINT = "arg.hint";
+    private VMEditTextFragment vmEditTextFragment;
+    private FragmentEditTextBinding binding;
+    private OnItemSelectedListener listener;
 
     public EditTextFragment() {
     }
@@ -37,31 +38,44 @@ public class EditTextFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        FragmentEditTextBinding binding = FragmentEditTextBinding.inflate(inflater, container, false);
-        VMEditTextFragment vmEditTextFragment = ViewModelProviders.of(this).get(VMEditTextFragment.class);
-
-        ItemTask.getInstance().fetch((status, message) -> {
-            if (status == ItemTask.SUCCESS) {
-                vmEditTextFragment.getEnabled().set(true);
-                List<ItemEntity> load = ItemTask.getInstance().load();
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
-                        android.R.layout.simple_dropdown_item_1line);
-                for (ItemEntity itemEntity : load) {
-                    adapter.add(itemEntity.getName());
-                }
-
-                vmEditTextFragment.getAdapter().set(adapter);
-            } else {
-                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-            }
-        });
+        binding = FragmentEditTextBinding.inflate(inflater, container, false);
+        vmEditTextFragment = ViewModelProviders.of(this).get(VMEditTextFragment.class);
         if (getArguments() != null) {
             String hint = getArguments().getString(ARG_HINT);
             vmEditTextFragment.setHint(hint);
         }
+
+        fetchItems();
+        binding.text.setOnItemClickListener((parent, view, position, id) -> {
+            if (listener!=null){
+                listener.onSelect(((ArrayAdapter<ItemEntity>) binding.text.getAdapter()).getItem(position));
+            }
+        });
+
         binding.setVm(vmEditTextFragment);
         binding.executePendingBindings();
         return binding.getRoot();
     }
 
+    public void setListener(OnItemSelectedListener listener) {
+        this.listener = listener;
+    }
+
+    private void fetchItems() {
+        ArrayAdapter<ItemEntity> adapter = new ArrayAdapter<ItemEntity>(getContext(),
+                android.R.layout.simple_dropdown_item_1line);
+        ItemTask.getInstance().fetch((status, message) -> {
+            if (status == ItemTask.SUCCESS) {
+                adapter.addAll(ItemTask.getInstance().load());
+                vmEditTextFragment.getAdapter().set(adapter);
+                vmEditTextFragment.getEnabled().set(true);
+            } else {
+                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public interface OnItemSelectedListener {
+        void onSelect(ItemEntity entity);
+    }
 }

@@ -16,9 +16,9 @@ public class CustomerEntity {
     @Expose
     private String lastName;
 
-    @SerializedName("location")
+    @SerializedName("place")
     @Expose
-    private LocationEntity location;
+    private PlaceEntity placeEntity;
 
     public String getId() {
         return id;
@@ -44,11 +44,11 @@ public class CustomerEntity {
         this.lastName = lastName;
     }
 
-    public LocationEntity getLocation() {
-        return location;
+    public PlaceEntity getPlaceEntity() {
+        return placeEntity;
     }
 
-    public void setLocation(LocationEntity location) {
-        this.location = location;
+    public void setPlaceEntity(PlaceEntity placeEntity) {
+        this.placeEntity = placeEntity;
     }
 }

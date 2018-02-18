@@ -17,6 +17,10 @@ public class DelivererEntity {
     @SerializedName("lastName")
     @Expose
     private String lastName;
+
+    @SerializedName("deliveryDate")
+    @Expose
+    private String deliveryDate;
     @SerializedName("weightCapacity")
     @Expose
     private double weightCapacity;
@@ -28,6 +32,14 @@ public class DelivererEntity {
     @SerializedName("route")
     @Expose
     private List<RouteEntity> route = null;
+
+    @SerializedName("imageURL")
+    @Expose
+    private String imageURL;
+
+    @SerializedName("__v")
+    @Expose
+    private int v;
 
     public String getId() {
         return id;
@@ -75,5 +87,21 @@ public class DelivererEntity {
 
     public void setRoute(List<RouteEntity> route) {
         this.route = route;
+    }
+
+    public String getImageURL() {
+        return imageURL;
+    }
+
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+    }
+
+    public String getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public void setDeliveryDate(String deliveryDate) {
+        this.deliveryDate = deliveryDate;
     }
 }

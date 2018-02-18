@@ -2,7 +2,14 @@ package com.kurye.kurye.network;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.kurye.kurye.entity.response.ItemResponse;
+import com.kurye.kurye.entity.request.CreateOrderRequest;
+import com.kurye.kurye.entity.request.SearchDeliverersRequest;
+import com.kurye.kurye.entity.response.BaseResponse;
+import com.kurye.kurye.entity.response.DelivererEntity;
+import com.kurye.kurye.entity.response.ItemEntity;
+import com.kurye.kurye.entity.response.OrderEntity;
+
+import java.util.List;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -51,8 +58,20 @@ public class NetworkApi {
         return instance;
     }
 
-    public void getItems(NetworkCallback<ItemResponse> callback) {
+    public void getItems(NetworkCallback<BaseResponse<List<ItemEntity>>> callback) {
         sendRequest(service.getItems(), callback);
+    }
+
+    public void getDeliverers(SearchDeliverersRequest searchDeliverersRequest, NetworkCallback<BaseResponse<List<DelivererEntity>>> callback) {
+        sendRequest(service.searchDeliverers(searchDeliverersRequest), callback);
+    }
+
+    public void createOrder(CreateOrderRequest createOrderRequest, NetworkCallback<BaseResponse<OrderEntity>> callback) {
+        sendRequest(service.createOrder(createOrderRequest), callback);
+    }
+
+    public void getOrders(String customerId, NetworkCallback<BaseResponse<List<OrderEntity>>> networkCallback) {
+        sendRequest(service.getOrders(customerId), networkCallback);
     }
 
     private <R> void sendRequest(Call<R> call, final NetworkCallback<R> callBack) {
@@ -79,5 +98,4 @@ public class NetworkApi {
         };
         call.enqueue(requestCallback);
     }
-
 }

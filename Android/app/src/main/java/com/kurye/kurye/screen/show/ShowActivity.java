@@ -2,17 +2,14 @@ package com.kurye.kurye.screen.show;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.os.Build;
+import android.arch.lifecycle.ViewModelProviders;
+import android.databinding.DataBindingUtil;
+import android.databinding.Observable;
 import android.os.Bundle;
-import android.support.annotation.StyleRes;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.view.Gravity;
-import android.view.View;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
-import android.widget.ViewSwitcher;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -22,18 +19,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.kurye.kurye.R;
-import com.kurye.kurye.screen.filter.FilterActivity;
-import com.kurye.kurye.screen.show.cards.SliderAdapter;
-import com.kurye.kurye.viewEntity.OrderVM;
-import com.ramotion.cardslider.CardSliderLayoutManager;
-import com.ramotion.cardslider.CardSnapHelper;
+import com.kurye.kurye.common.view.TextViewFactory;
+import com.kurye.kurye.databinding.ActivityShowBinding;
 
 public class ShowActivity extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
-    private OrderVM[] vms;
-
-    private final int[] pics = {R.drawable.p2, R.drawable.p2, R.drawable.p3, R.drawable.p4, R.drawable.p5};
-    private final SliderAdapter sliderAdapter = new SliderAdapter(pics);
 
     private TextSwitcher placeSwitcher;
     private TextSwitcher clockSwitcher;
@@ -46,24 +36,31 @@ public class ShowActivity extends AppCompatActivity implements OnMapReadyCallbac
     private long countryAnimDuration;
     private int currentPosition;
     private Marker currentMarker;
+    private VMShowActivity vmShowActivity;
+    private boolean first = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityShowBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_show);
 
-        // FIXME: 2/18/2018 remove dummy data
-        vms = new OrderVM[]{
-                new OrderVM("The Louvre", "Aug 1 - Dec 15    7:00-18:00", "PARIS", getString(R.string.text1), ContextCompat.getDrawable(this, R.drawable.p1)),
-                new OrderVM("Gwanghwamun", "Aug 1 - Dec 15    7:00-18:00", "SEOUL", getString(R.string.text2), ContextCompat.getDrawable(this, R.drawable.p2)),
-                new OrderVM("Tower Bridge", "Sep 5 - Nov 10    8:00-16:00", "LONDON", getString(R.string.text3), ContextCompat.getDrawable(this, R.drawable.p3)),
-                new OrderVM("Temple of Heaven", "Mar 8 - May 21    7:00-18:00", "BEIJING", getString(R.string.text4), ContextCompat.getDrawable(this, R.drawable.p4)),
-                new OrderVM("Aegeana Sea", "Mar 10 - May 21    7:00-18:00", "THIRA", getString(R.string.text5), ContextCompat.getDrawable(this, R.drawable.p5))
-        };
-        setContentView(R.layout.activity_show);
+        vmShowActivity = ViewModelProviders.of(this).get(VMShowActivity.class);
+        vmShowActivity.getPosition().addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
+            @Override
+            public void onPropertyChanged(Observable observable, int i) {
+                int pos = vmShowActivity.getPosition().get();
+                if (pos == 0 && first) {
+                    initCountryText();
+                    initSwitchers();
+                    first = false;
+                }
+                onActiveCardChange(pos);
+            }
+        });
+        binding.setVmShow(vmShowActivity);
+
+        binding.executePendingBindings();
         initMap();
-        initRecyclerView();
-        initCountryText();
-        initSwitchers();
     }
 
     private void initMap() {
@@ -72,40 +69,22 @@ public class ShowActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
     }
 
-    private void initRecyclerView() {
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setAdapter(sliderAdapter);
-        recyclerView.setHasFixedSize(true);
-
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    onActiveCardChange(((CardSliderLayoutManager)
-                            recyclerView.getLayoutManager()).getActiveCardPosition());
-                }
-            }
-        });
-
-        new CardSnapHelper().attachToRecyclerView(recyclerView);
-    }
 
     private void initSwitchers() {
-        findViewById(R.id.frameLayout).setOnClickListener(v -> FilterActivity.start(ShowActivity.this));
 
         placeSwitcher = (TextSwitcher) findViewById(R.id.ts_place);
-        placeSwitcher.setFactory(new TextViewFactory(R.style.PlaceTextView, false));
-        placeSwitcher.setCurrentText(vms[0].getPlace().get());
+        placeSwitcher.setFactory(new TextViewFactory(this, R.style.PlaceTextView, false));
+        placeSwitcher.setCurrentText(vmShowActivity.getOrders().get(0).getPlace().get());
 
         clockSwitcher = (TextSwitcher) findViewById(R.id.ts_clock);
-        clockSwitcher.setFactory(new TextViewFactory(R.style.ClockTextView, false));
-        clockSwitcher.setCurrentText(vms[0].getTime().get());
+        clockSwitcher.setFactory(new TextViewFactory(this, R.style.ClockTextView, false));
+        clockSwitcher.setCurrentText(vmShowActivity.getOrders().get(0).getTime().get());
 
         descriptionsSwitcher = (TextSwitcher) findViewById(R.id.ts_description);
         descriptionsSwitcher.setInAnimation(this, android.R.anim.fade_in);
         descriptionsSwitcher.setOutAnimation(this, android.R.anim.fade_out);
-        descriptionsSwitcher.setFactory(new TextViewFactory(R.style.DescriptionTextView, false));
-        descriptionsSwitcher.setCurrentText(vms[0].getDescription().get());
+        descriptionsSwitcher.setFactory(new TextViewFactory(this, R.style.DescriptionTextView, false));
+        descriptionsSwitcher.setCurrentText(vmShowActivity.getOrders().get(0).getDescription().get());
     }
 
     private void initCountryText() {
@@ -117,7 +96,7 @@ public class ShowActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         country1TextView.setX(countryOffset1);
         country2TextView.setX(countryOffset2);
-        country1TextView.setText(vms[0].getCountry().get());
+        country1TextView.setText(vmShowActivity.getOrders().get(0).getCountry().get());
         country2TextView.setAlpha(0f);
 
     }
@@ -167,17 +146,17 @@ public class ShowActivity extends AppCompatActivity implements OnMapReadyCallbac
             animV[1] = R.anim.slide_out_top;
         }
 
-        setCountryText(vms[pos].getCountry().get(), left2right);
+        setCountryText(vmShowActivity.getOrders().get(pos).getCountry().get(), left2right);
 
         placeSwitcher.setInAnimation(ShowActivity.this, animV[0]);
         placeSwitcher.setOutAnimation(ShowActivity.this, animV[1]);
-        placeSwitcher.setText(vms[pos].getPlace().get());
+        placeSwitcher.setText(vmShowActivity.getOrders().get(pos).getPlace().get());
 
         clockSwitcher.setInAnimation(ShowActivity.this, animV[0]);
         clockSwitcher.setOutAnimation(ShowActivity.this, animV[1]);
-        clockSwitcher.setText(vms[pos].getTime().get());
+        clockSwitcher.setText(vmShowActivity.getOrders().get(pos).getTime().get());
 
-        descriptionsSwitcher.setText(vms[pos].getDescription().get());
+        descriptionsSwitcher.setText(vmShowActivity.getOrders().get(pos).getDescription().get());
 
         showMap(Math.random() * 180 - 90, Math.random() * 180 - 90);
 
@@ -194,37 +173,6 @@ public class ShowActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .anchor(0, -1.0f);
         currentMarker = mMap.addMarker(position);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(newPlace, 7));
-    }
-
-    private class TextViewFactory implements ViewSwitcher.ViewFactory {
-
-        @StyleRes
-        final int styleId;
-        final boolean center;
-
-        TextViewFactory(@StyleRes int styleId, boolean center) {
-            this.styleId = styleId;
-            this.center = center;
-        }
-
-        @SuppressWarnings("deprecation")
-        @Override
-        public View makeView() {
-            final TextView textView = new TextView(ShowActivity.this);
-
-            if (center) {
-                textView.setGravity(Gravity.CENTER);
-            }
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                textView.setTextAppearance(ShowActivity.this, styleId);
-            } else {
-                textView.setTextAppearance(styleId);
-            }
-
-            return textView;
-        }
-
     }
 
     @Override

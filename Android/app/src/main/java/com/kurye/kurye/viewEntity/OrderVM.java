@@ -2,7 +2,8 @@ package com.kurye.kurye.viewEntity;
 
 import android.arch.lifecycle.ViewModel;
 import android.databinding.ObservableField;
-import android.graphics.drawable.Drawable;
+import android.databinding.ObservableInt;
+import android.support.annotation.DrawableRes;
 
 /**
  * Created by ahmet on 2/18/2018
@@ -13,14 +14,14 @@ public class OrderVM extends ViewModel {
     private ObservableField<String> time = new ObservableField<>();
     private ObservableField<String> country = new ObservableField<>();
     private ObservableField<String> description = new ObservableField<>();
-    private ObservableField<Drawable> picture = new ObservableField<>();
+    private ObservableInt picture = new ObservableInt();
 
-    public OrderVM(String place, String time, String country, String description, Drawable picture) {
+    public OrderVM(String place, String time, String country, String description, @DrawableRes int resId) {
         this.place.set(place);
         this.time.set(time);
         this.country.set(country);
         this.description.set(description);
-        this.picture.set(picture);
+        this.picture.set(resId);
     }
 
     public ObservableField<String> getPlace() {
@@ -39,7 +40,7 @@ public class OrderVM extends ViewModel {
         return description;
     }
 
-    public ObservableField<Drawable> getPicture() {
+    public ObservableInt getPicture() {
         return picture;
     }
 }

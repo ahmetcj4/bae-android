@@ -3,16 +3,14 @@ package com.kurye.kurye.entity.response;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
-
-public class ItemResponse {
+public class BaseResponse<T> {
 
     @SerializedName("code")
     @Expose
     private int code;
     @SerializedName("data")
     @Expose
-    private List<ItemEntity> data = null;
+    private T data;
 
     public int getCode() {
         return code;
@@ -22,11 +20,11 @@ public class ItemResponse {
         this.code = code;
     }
 
-    public List<ItemEntity> getData() {
+    public T getData() {
         return data;
     }
 
-    public void setData(List<ItemEntity> data) {
+    public void setData(T data) {
         this.data = data;
     }
 

@@ -5,12 +5,23 @@ import com.google.gson.annotations.SerializedName;
 
 public class RouteEntity {
 
+    @SerializedName("place")
+    @Expose
+    private PlaceEntity place;
     @SerializedName("date")
     @Expose
     private String date;
-    @SerializedName("location")
+    @SerializedName("_id")
     @Expose
-    private LocationEntity location;
+    private String id;
+
+    public PlaceEntity getPlace() {
+        return place;
+    }
+
+    public void setPlace(PlaceEntity place) {
+        this.place = place;
+    }
 
     public String getDate() {
         return date;
@@ -20,11 +31,11 @@ public class RouteEntity {
         this.date = date;
     }
 
-    public LocationEntity getLocation() {
-        return location;
+    public String getId() {
+        return id;
     }
 
-    public void setLocation(LocationEntity location) {
-        this.location = location;
+    public void setId(String id) {
+        this.id = id;
     }
 }

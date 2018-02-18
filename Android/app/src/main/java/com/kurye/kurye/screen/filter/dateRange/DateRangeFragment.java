@@ -7,7 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.kurye.kurye.R;
+import com.appeaser.sublimepickerlibrary.datepicker.SelectedDate;
+import com.appeaser.sublimepickerlibrary.datepicker.SublimeDatePicker;
+import com.kurye.kurye.databinding.FragmentDateRangeBinding;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -17,6 +19,8 @@ import com.kurye.kurye.R;
 public class DateRangeFragment extends Fragment {
     public DateRangeFragment() {}
 
+    private SublimeDatePicker dateRangePicker;
+
     public static DateRangeFragment newInstance() {
         return new DateRangeFragment();
     }
@@ -25,7 +29,12 @@ public class DateRangeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_date_range, container, false);
+        FragmentDateRangeBinding binding = FragmentDateRangeBinding.inflate(inflater, container, false);
+        dateRangePicker = binding.dateRangePicker;
+        return binding.getRoot();
     }
 
+    public SelectedDate getDate(){
+        return dateRangePicker.getSelectedDate();
+    }
 }

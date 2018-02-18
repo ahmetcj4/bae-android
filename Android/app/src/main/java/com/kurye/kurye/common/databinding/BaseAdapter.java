@@ -6,11 +6,24 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import java.util.List;
+
 public abstract class BaseAdapter<T> extends RecyclerView.Adapter<ViewHolder<T>> {
+    List<T> itemList;
+
+    BaseAdapter(List<T> itemList) {
+        this.itemList = itemList;
+    }
+
     public ViewHolder<T> onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater =LayoutInflater.from(parent.getContext());
         ViewDataBinding binding = DataBindingUtil.inflate(layoutInflater, viewType, parent, false);
-        return new ViewHolder<T>(binding);
+        return new ViewHolder<>(binding);
+    }
+
+    void updateData(List<T> items) {
+        itemList = items;
+        notifyDataSetChanged();
     }
 
     public void onBindViewHolder(ViewHolder<T> holder, int position) {

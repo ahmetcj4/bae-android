@@ -9,9 +9,10 @@
     </data>
 
     <AutoCompleteTextView
+        android:id="@+id/text"
         style="@style/etNumber"
         android:enabled="@{vm.enabled}"
         android:hint="@{vm.hint}"
-        android:text="@{vm.text}"
+        android:text="@={vm.text}"
         app:textAdapter="@{vm.adapter}" />
 </layout>
